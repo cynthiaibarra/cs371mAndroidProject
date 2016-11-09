@@ -1,40 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:background="@drawable/background_material"
-    android:fitsSystemWindows="true"
-    android:layout_height="200dp">
-    <cai288.cs371m.project.CircleImageView
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:src="@drawable/sqr"
-        android:layout_marginLeft="24dp"
-        android:layout_marginBottom="15dp"
-        android:id="@+id/profilePic"/>
+android:layout_width="match_parent"
+android:layout_height="190dp"
+android:background="@drawable/background_material"
+android:orientation="vertical"
+    >
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/header_profilePic"
+        android:src="@drawable/ic_account_circle_black_36dp"
+        android:layout_width="76dp"
+        android:layout_height="76dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="18dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Cynthia Ibarra"
-        android:textScaleX="1.1"
+        android:id="@+id/header_name"
+        android:text="Display Name"
         android:textSize="14sp"
         android:textColor="#FFF"
         android:textStyle="bold"
-        android:layout_alignLeft="@id/profilePic"
-        android:id="@+id/name"
-        android:layout_below="@id/profilePic"
-   />
+        android:gravity="left"
+        android:paddingBottom="4dp"
+        android:layout_above="@+id/header_username"
+        android:layout_alignLeft="@id/header_profilePic"
+        android:layout_alignStart="@id/header_profilePic"
+        />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="\@dulcecanda"
-        android:textScaleX="1.1"
+        android:id="@+id/header_username"
+        android:text="email@email.com"
+        android:gravity="left"
+        android:layout_marginBottom="8dp"
         android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        android:layout_alignLeft="@id/profilePic"
-        android:textStyle="bold"
-        android:layout_below="@id/name"/>
+        android:textColor="#fff"
+        android:layout_alignParentBottom="true"
+        android:layout_alignLeft="@id/header_name"
+        android:layout_alignStart="@id/header_name" />
+
 
 
 </RelativeLayout>
-
     <!--http://www.android4devs.com/2015/06/navigation-view-material-design-support.html-->
