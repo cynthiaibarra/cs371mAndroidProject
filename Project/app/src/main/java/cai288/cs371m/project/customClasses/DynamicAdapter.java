@@ -83,6 +83,7 @@ public class DynamicAdapter extends RecyclerView.Adapter<DynamicAdapter.DynamicV
 
     public void clear(){
         movieRecords.clear();
+        ids.clear();
     }
 
     public void addItem(MovieRecord movie){

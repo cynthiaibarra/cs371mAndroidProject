@@ -142,10 +142,10 @@ public class MovieFetch {
 
             URL searchURL = null;
             String url = OMDBAPI_POSTER + s[0];
-            Log.i(TAG, url);
             try {
                 searchURL = new URL(url);
             } catch (Exception e) {
+                e.printStackTrace();
                 return null;
             }
 

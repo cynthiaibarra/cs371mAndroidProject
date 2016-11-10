@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,15 +22,11 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import cai288.cs371m.project.customClasses.MovieFetch;
 import cai288.cs371m.project.R;
 import cai288.cs371m.project.customClasses.MovieRecord;
-import info.movito.themoviedbapi.model.MovieDb;
-
 public class MovieInfoActivity extends AppCompatActivity implements MovieFetch.Callback,
     View.OnClickListener{
 
@@ -44,6 +41,7 @@ public class MovieInfoActivity extends AppCompatActivity implements MovieFetch.C
     private boolean hearted;
     private String watchList;
     private String favoriteList;
+    private ProgressBar progressBar;
     ImageView moviePoster;
 
     @Override
@@ -114,6 +112,7 @@ public class MovieInfoActivity extends AppCompatActivity implements MovieFetch.C
         String email = user.getEmail().replace(".", "_");
         watchList = email + getString(R.string.watch_list);
         favoriteList = email + getString(R.string.favorite_list);
+        progressBar = (ProgressBar) findViewById(R.id.movieInfo_progressBar);
     }
 
     private void initDisplay(){
@@ -133,7 +132,14 @@ public class MovieInfoActivity extends AppCompatActivity implements MovieFetch.C
 
     @Override
     public void fetchImageComplete(Bitmap image) {
-        moviePoster.setImageBitmap(image);
+        progressBar.setVisibility(View.GONE);
+        moviePoster.setVisibility(View.VISIBLE);
+        if(image == null)
+            moviePoster.setImageResource(R.drawable.noposter);
+        else{
+            moviePoster.setImageBitmap(image);
+        }
+
     }
 
     @Override
@@ -172,11 +178,5 @@ public class MovieInfoActivity extends AppCompatActivity implements MovieFetch.C
         }
     }
 
-    private class Entry{
-        String title;
-        public Entry(String title){
-            this.title = title;
-        }
-    }
 }
 

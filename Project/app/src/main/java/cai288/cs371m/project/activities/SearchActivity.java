@@ -8,9 +8,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,6 +38,8 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
     private EditText query;
     private MovieFetch movieFetcher;
     private final String TAG = "SearchActivity: ";
+    private String previousQuery;
+    private ProgressBar progressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +49,7 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference();
+        progressBar = (ProgressBar) findViewById(R.id.search_progressBar);
 
 
 
@@ -56,6 +63,16 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
 
         movieFetcher = new MovieFetch(this);
         query = (EditText) findViewById(R.id.searchQuery);
+        query.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    search();
+                    return true;
+                }
+                return false;
+            }
+        });
 
 
         ImageButton searchBtn = (ImageButton) findViewById(R.id.searchBtn);
@@ -77,19 +94,31 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
 
     @Override
     public void fetchMoviesComplete(JSONObject result) {
+        progressBar.setVisibility(View.INVISIBLE);
+        rv.setVisibility(View.VISIBLE);
+        Log.i(TAG, result.toString());
         JSONArray movies = null;
-        adapter.clear();
+        String error = null;
         try{
-            movies = result.getJSONArray("Search");
-        }catch (Exception e){
+            if(result.has("Search"))
+                movies = result.getJSONArray("Search");
+            else if(result.has("Error"))
+                error = result.getString("Error");
+        }catch (Exception e) {
             Log.e(TAG, e.toString());
         }
-
+        if(error != null) {
+            Toast.makeText(this, "Error: " + error + ". Try another query.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         if(movies != null){
+            if(movies.length() == 0){
+                Toast.makeText(this, "Search yielded no results. Try shortening query.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             for(int i = 0; i < movies.length(); i++){
                 JSONObject movie = null;
                 String title = null, year = null, imdbID = null;
-                MovieRecord record;
                 try{
                     movie = movies.getJSONObject(i);
                     title = movie.getString("Title");
@@ -108,6 +137,24 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
 
     }
 
+    private void search(){
+        String q = query.getText().toString();
+        if(previousQuery != null && previousQuery.equals(q)) {
+            Toast.makeText(this, "Already displaying results for query.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        previousQuery = q;
+        if (q.length() == 0) {
+            Toast.makeText(this, "Please enter a search query.", Toast.LENGTH_SHORT).show();
+        } else {
+            adapter.clear();
+            adapter.notifyDataSetChanged();
+            rv.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
+            movieFetcher.fetch(MovieFetch.SEARCH, q);
+        }
+    }
+
     @Override
     public void fetchImageComplete(Bitmap b) {
     }
@@ -116,12 +163,7 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.searchBtn:
-                String q = query.getText().toString();
-                if (q.length() == 0) {
-                    Toast.makeText(v.getContext(), "Please enter a search query.", Toast.LENGTH_SHORT).show();
-                } else {
-                    movieFetcher.fetch(MovieFetch.SEARCH, q);
-                }
+                search();
                 break;
             default:
                 break;

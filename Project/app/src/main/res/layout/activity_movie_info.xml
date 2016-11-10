@@ -20,35 +20,40 @@
 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="250dp"
         android:orientation="horizontal"
         android:background="#234656">
-
+        <ProgressBar
+            android:id="@+id/movieInfo_progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:visibility="visible"/>
         <ImageView
             android:adjustViewBounds="true"
-            android:minHeight="250dp"
-            android:layout_width="200dp"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
             android:scaleType="fitCenter"
-            android:src="@drawable/hp"
-            android:id="@+id/movieInfo_pic"/>
+            android:id="@+id/movieInfo_pic"
+            android:visibility="gone"/>
         <RelativeLayout
             android:layout_weight="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp">
             <ImageButton
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:scaleType="fitXY"
                 android:layout_alignParentRight="true"
                 android:background="@android:color/transparent"
                 android:src="@drawable/heart_outline"
                 android:id="@+id/movieInfo_heart"/>
             <ImageButton
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:scaleType="fitXY"
                 android:background="@android:color/transparent"
                 android:layout_toLeftOf="@id/movieInfo_heart"
@@ -58,7 +63,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="24sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
                 android:layout_marginLeft="10dp"
                 android:id="@+id/movieInfo_title"
@@ -67,7 +72,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/movieInfo_homepage"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:layout_alignLeft="@id/movieInfo_title"
                 android:layout_below="@id/movieInfo_title"/>
 
