@@ -16,4 +16,6 @@
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="favorite_list">_favoriteList</string>
+    <string name="watch_list">_watchList</string>
 </resources>

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "990653813915",
+    "firebase_url": "https://letswatch-e5029.firebaseio.com",
+    "project_id": "letswatch-e5029",
+    "storage_bucket": "letswatch-e5029.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:990653813915:android:4fa4fff98e90f384",
+        "android_client_info": {
+          "package_name": "cai288.cs371m.project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "990653813915-910fsp5hv8sfk50ds54v9hi79j41dlq6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDV_3FUBLw95uPi7dEOnFlUCMIeC1wtNBs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

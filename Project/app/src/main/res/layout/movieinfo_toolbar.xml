@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="30dp"
+        android:orientation="horizontal">
+        <!--<cai288.cs371m.project.CircleImageView-->
+        <!--android:layout_width="50dp"-->
+        <!--android:layout_height="52dp"-->
+        <!--android:src="@drawable/sqr" />-->
+        <ImageButton
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/back"
+            android:scaleType="fitXY"
+            android:background="@android:color/transparent"
+            android:id="@+id/movieinfo_back"/>
+    </LinearLayout>
+</android.support.v7.widget.Toolbar>

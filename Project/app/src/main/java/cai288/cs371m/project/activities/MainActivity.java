@@ -1,10 +1,9 @@
-package cai288.cs371m.project;
+package cai288.cs371m.project.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
@@ -27,17 +26,26 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import org.w3c.dom.Text;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
+import cai288.cs371m.project.customClasses.AppUser;
+import cai288.cs371m.project.R;
+import cai288.cs371m.project.ViewPagerAdapter;
+import cai288.cs371m.project.customClasses.MovieRecord;
 import de.hdodenhof.circleimageview.CircleImageView;
-import info.movito.themoviedbapi.TmdbSearch;
+import info.movito.themoviedbapi.model.MovieDb;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
 
@@ -53,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
     private TextView headerName;
     private TextView headerUsername;
     private CircleImageView headerProfilePic;
+    private String email;
 
     private GoogleApiClient googleApiClient;
 
@@ -82,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             login();
         }else{
             String uid = mFireBaseUser.getUid();
-            String email = mFireBaseUser.getEmail().replace(".", "_");
+            email = mFireBaseUser.getEmail().replace(".", "_");
             AppUser user = new AppUser(mFireBaseUser.getEmail(), mFireBaseUser.getDisplayName(),
                     mFireBaseUser.getPhotoUrl().toString(), mFireBaseUser.getUid());
             firebaseDatabaseReference.child("user").child(email).setValue(user);
@@ -147,9 +156,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         ViewPager viewPager = (ViewPager) findViewById(R.id.viewPager);
         TabLayout tabLayout = (TabLayout)  findViewById(R.id.tabLayout);
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        String watchList = email + getString(R.string.watch_list);
+        String faveList = email + getString(R.string.favorite_list);
+
+
         adapter.addFragment(new ListFragment(), "SOCIAL");
-        adapter.addFragment(new ListFragment(), "MOVIES");
-        adapter.addFragment(new ListFragment(), "FAVES");
+        adapter.addFragment(ListsFragment.newInstance(watchList), "WATCHLIST");
+        adapter.addFragment(ListsFragment.newInstance(faveList), "FAVELIST");
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
     }
