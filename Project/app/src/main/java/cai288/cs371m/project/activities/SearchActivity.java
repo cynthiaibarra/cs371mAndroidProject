@@ -19,19 +19,31 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.api.model.StringList;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+
+import cai288.cs371m.project.customClasses.AppUser;
+import cai288.cs371m.project.customClasses.DatabaseManager;
 import cai288.cs371m.project.customClasses.DynamicAdapter;
+import cai288.cs371m.project.customClasses.FriendAdapter;
 import cai288.cs371m.project.customClasses.MovieFetch;
 import cai288.cs371m.project.R;
 import cai288.cs371m.project.customClasses.MovieRecord;
 
 public class SearchActivity extends AppCompatActivity implements MovieFetch.Callback, View.OnClickListener{
-
+    public static final int SEARCH_MOVIES = 0;
+    public static final int SEARCH_FRIENDS = 1;
     private RecyclerView rv;
     private DynamicAdapter adapter;
     private DatabaseReference databaseReference;
@@ -40,18 +52,49 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
     private final String TAG = "SearchActivity: ";
     private String previousQuery;
     private ProgressBar progressBar;
+    private int searchType;
+    private FriendAdapter friendAdapter;
+    private String userEmail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         setContentView(R.layout.activity_search);
         Toolbar toolbar = (Toolbar) findViewById(R.id.searchToolbar);
         setSupportActionBar(toolbar);
+
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference();
         progressBar = (ProgressBar) findViewById(R.id.search_progressBar);
 
+        searchType = 0;
+        rv = (RecyclerView) findViewById(R.id.searchRecyclerView);
+        LinearLayoutManager rv_layout_mgr = new LinearLayoutManager(getApplicationContext());
+        rv.setLayoutManager(rv_layout_mgr);
+        rv.setItemAnimator(new DefaultItemAnimator());
 
+        Bundle bundle = getIntent().getExtras();
+        if(bundle != null){
+            searchType = bundle.getInt("searchType");
+        }
+
+        query = (EditText) findViewById(R.id.searchQuery);
+        switch (searchType){
+            case SEARCH_MOVIES:
+                adapter = new DynamicAdapter(this);
+                rv.setAdapter(adapter);
+                movieFetcher = new MovieFetch(this);
+                break;
+            case SEARCH_FRIENDS:
+                friendAdapter = new FriendAdapter(FriendAdapter.TYPE_ADD_FRIEND);
+                rv.setAdapter(friendAdapter);
+                break;
+            default:
+                break;
+
+        }
 
         ImageButton back = (ImageButton) findViewById(R.id.backArrow);
         back.setOnClickListener(new View.OnClickListener() {
@@ -61,8 +104,6 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
             }
         });
 
-        movieFetcher = new MovieFetch(this);
-        query = (EditText) findViewById(R.id.searchQuery);
         query.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -75,17 +116,15 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
         });
 
 
+
+
+
         ImageButton searchBtn = (ImageButton) findViewById(R.id.searchBtn);
         searchBtn.setOnClickListener(this);
-            //TODO dim search button until it contains an entry
+        //TODO dim search button until it contains an entry
 
 
-        rv = (RecyclerView) findViewById(R.id.searchRecyclerView);
-        LinearLayoutManager rv_layout_mgr = new LinearLayoutManager(getApplicationContext());
-        rv.setLayoutManager(rv_layout_mgr);
-        rv.setItemAnimator(new DefaultItemAnimator());
-        adapter = new DynamicAdapter(this);
-        rv.setAdapter(adapter);
+
 
 //        movieFetcher.fetch(MovieFetch.DISCOVER, "");
 
@@ -138,7 +177,7 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
     }
 
     private void search(){
-        String q = query.getText().toString();
+        String q = query.getText().toString().trim();
         if(previousQuery != null && previousQuery.equals(q)) {
             Toast.makeText(this, "Already displaying results for query.", Toast.LENGTH_SHORT).show();
             return;
@@ -146,12 +185,36 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
         previousQuery = q;
         if (q.length() == 0) {
             Toast.makeText(this, "Please enter a search query.", Toast.LENGTH_SHORT).show();
-        } else {
-            adapter.clear();
-            adapter.notifyDataSetChanged();
+        }else{
+
             rv.setVisibility(View.INVISIBLE);
             progressBar.setVisibility(View.VISIBLE);
-            movieFetcher.fetch(MovieFetch.SEARCH, q);
+            switch (searchType){
+                case SEARCH_MOVIES:
+                    adapter.clear();
+                    adapter.notifyDataSetChanged();
+                    movieFetcher.fetch(MovieFetch.SEARCH, q);
+                    break;
+                case SEARCH_FRIENDS:
+                    Log.i(TAG, "SEARCH FRIENDS");
+                    friendAdapter.clear();
+                    String email = q.replace(".", "_");
+                    DatabaseManager.getUser(email, new addUserToFriendAdapter());
+                    progressBar.setVisibility(View.INVISIBLE);
+                    rv.setVisibility(View.VISIBLE);
+                    break;
+            }
+        }
+    }
+
+    private class addUserToFriendAdapter implements DatabaseManager.getUserListener{
+
+        @Override
+        public void getUserCallback(AppUser user) {
+            if(userEmail.equals(user.getEmail()) || user == null)
+                Toast.makeText(SearchActivity.this, "Search yielded no results.", Toast.LENGTH_SHORT).show();
+            else
+                friendAdapter.addItem(user);
         }
     }
 

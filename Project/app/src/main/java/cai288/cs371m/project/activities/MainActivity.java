@@ -178,7 +178,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         mFirebaseAuth.signOut();
                         Auth.GoogleSignInApi.signOut(googleApiClient);
                         login();
-                        return true;
+                        break;
+                    case R.id.nav_searchFriends:
+                        Intent intent = new Intent(MainActivity.this, SearchActivity.class);
+                        intent.putExtra("searchType", SearchActivity.SEARCH_FRIENDS);
+                        startActivity(intent);
+                        break;
                 }
                 drawerLayout.closeDrawers();
                 return true;

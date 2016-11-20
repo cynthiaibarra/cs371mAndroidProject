@@ -10,7 +10,7 @@
             android:title="Profile" />
 
         <item
-            android:id="@+id/starred"
+            android:id="@+id/nav_searchFriends"
             android:checked="false"
             android:title="Friends" />
 

@@ -1,13 +1,16 @@
 package cai288.cs371m.project.customClasses;
 
+import java.io.Serializable;
+
 /**
  * Created by Cynthia on 11/7/2016.
  */
-public class AppUser {
-    public String name;
-    public String email;
-    public String uid;
-    public String photo;
+public class AppUser implements Serializable{
+
+    private String name;
+    private String email;
+    private String uid;
+    private String photo;
 
     public AppUser(){
     }
@@ -17,5 +20,21 @@ public class AppUser {
         this.name = name;
         this.photo = photo;
         this.uid = uid;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public String getPhoto() {
+        return photo;
     }
 }
