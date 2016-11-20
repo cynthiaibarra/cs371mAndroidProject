@@ -43,11 +43,13 @@ import java.util.Iterator;
 import cai288.cs371m.project.customClasses.AppUser;
 import cai288.cs371m.project.R;
 import cai288.cs371m.project.ViewPagerAdapter;
+import cai288.cs371m.project.customClasses.DatabaseManager;
 import cai288.cs371m.project.customClasses.MovieRecord;
 import de.hdodenhof.circleimageview.CircleImageView;
 import info.movito.themoviedbapi.model.MovieDb;
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener{
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener,
+    DatabaseManager.ContainsUserListener{
 
     private final String TAG = "MainActivity: ";
 
@@ -92,9 +94,8 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         }else{
             String uid = mFireBaseUser.getUid();
             email = mFireBaseUser.getEmail().replace(".", "_");
-            AppUser user = new AppUser(mFireBaseUser.getEmail(), mFireBaseUser.getDisplayName(),
-                    mFireBaseUser.getPhotoUrl().toString(), mFireBaseUser.getUid());
-            firebaseDatabaseReference.child("user").child(email).setValue(user);
+            DatabaseManager.containsUser(email, this);
+
         }
 
         mAuthListener = new FirebaseAuth.AuthStateListener(){
@@ -160,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         String faveList = email + getString(R.string.favorite_list);
 
 
-        adapter.addFragment(new ListFragment(), "SOCIAL");
+        adapter.addFragment(FriendsFragment.newInstance(email), "FRIENDS");
         adapter.addFragment(ListsFragment.newInstance(watchList), "WATCHLIST");
         adapter.addFragment(ListsFragment.newInstance(faveList), "FAVELIST");
         viewPager.setAdapter(adapter);
@@ -251,6 +252,15 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
         // be available.
         Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void containsUserCallback(String user, boolean containUser) {
+        if(!containUser){
+            AppUser u = new AppUser(mFireBaseUser.getEmail(), mFireBaseUser.getDisplayName(),
+                    mFireBaseUser.getPhotoUrl().toString(), mFireBaseUser.getUid());
+            firebaseDatabaseReference.child("user").child(email).setValue(u);
+        }
     }
 
     private class GetImage extends AsyncTask<URL, Void, Bitmap> {

@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -78,7 +79,7 @@ public class FriendsFragment extends Fragment implements DatabaseManager.getFrie
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_lists, container, false);
         setUpRecyclerView(v);
-        userEmail = getArguments() != null ? getArguments().getString("userEmail") : null;
+        userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
         if(userEmail != null)
             new DatabaseManager().getFriendsList(userEmail, this);
         return v;
