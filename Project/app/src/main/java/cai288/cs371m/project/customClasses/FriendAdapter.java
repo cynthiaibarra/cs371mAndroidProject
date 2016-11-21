@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,8 +44,10 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
     private int type = 500;
     public static final int TYPE_FRIEND = 0;
     public static final int TYPE_ADD_FRIEND = 1;
+    public static final int TYPE_FRIEND_REQUEST_RECEIVED = 2;
+    public static final int TYPE_FRIEND_REQUEST_SENT = 3;
+
     private ArrayList<String> friendsList = new ArrayList<>();
-    private ArrayList<String> requestList = new ArrayList<>();
     private static final String userEmail = FirebaseAuth.getInstance().getCurrentUser().getEmail();
 
 
@@ -62,6 +65,15 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
     public boolean contains(AppUser user){
         for(AppUser u: list){
             if (u.getEmail().equals(user.getEmail()))
+                return true;
+        }
+        return false;
+    }
+
+    public boolean contains(String friend){
+        friend = friend.replace("_",".");
+        for(AppUser u: list){
+            if (u.getEmail().equals(friend))
                 return true;
         }
         return false;
@@ -93,6 +105,7 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
             this.profilePic = (CircleImageView) itemView.findViewById(R.id.friend_row_profilePic);
             this.email = (TextView) itemView.findViewById(R.id.friend_row_email);
             this.addFriendBtn = (Button) itemView.findViewById(R.id.friend_row_addBtn);
+            addFriendBtn.setVisibility(View.GONE);
             this.container = itemView;
             this.friendRequestSent = (TextView) itemView.findViewById(R.id.friend_row_request_sent);
             friendRequestSent.setVisibility(View.GONE);
@@ -130,26 +143,71 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
     @Override
     public void onBindViewHolder(GenericAdapter.RecyclerViewHolder holder, int position) {
         final AppUser user = getItem(position);
-        FriendViewHolder h = (FriendViewHolder) holder;
+        if(user.friends != null){
+            Log.i("meep", user.friends.toString());
+        }
+        final FriendViewHolder h = (FriendViewHolder) holder;
+        RelationshipStatus relationship = determineRelationship(user);
         h.name.setText(user.getName());
         h.email.setText(user.getEmail());
         new GetImage(h.profilePic).execute(user.getPhoto());
-        if(type == TYPE_ADD_FRIEND){
+        Log.i("determineRelationship", "" + relationship.friends);
+
+        if(type == TYPE_ADD_FRIEND && !relationship.friends && !relationship.requested){
             if(friendsList.indexOf(user.getEmail()) < 0){
+                h.friendRequestSent.setVisibility(View.GONE);
                 h.addFriendBtn.setVisibility(View.VISIBLE);
                 h.addFriendBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        DatabaseManager.addFriend(userEmail, user.getEmail());
-                        friendsList.add(user.getEmail());
+                        DatabaseManager.requestFriend(userEmail, user.getEmail());
+                       // friendsList.add(user.getEmail());
+                        v.setVisibility(View.GONE);
+                        h.friendRequestSent.setVisibility(View.VISIBLE);
                     }
                 });
             }
 
-        }else{
+        }else if(type == TYPE_ADD_FRIEND && relationship.requested){
+            h.friendRequestSent.setVisibility(View.VISIBLE);
             h.addFriendBtn.setVisibility(View.GONE);
+        }else if(type == TYPE_ADD_FRIEND && relationship.friends){
+            h.friendRequestSent.setText("Friends");
+            h.addFriendBtn.setVisibility(View.GONE);
+            h.friendRequestSent.setVisibility(View.VISIBLE);
+
+        }else if(type == TYPE_FRIEND_REQUEST_SENT){
+            h.friendRequestSent.setText("Request Pending");
+            h.friendRequestSent.setVisibility(View.VISIBLE);
+        }else if(type == TYPE_FRIEND_REQUEST_RECEIVED){
+            h.addFriendBtn.setVisibility(View.VISIBLE);
+            h.addFriendBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    v.setVisibility(View.GONE);
+                    h.friendRequestSent.setText("Friend Added!");
+                    h.friendRequestSent.setVisibility(View.VISIBLE);
+                    DatabaseManager.addFriend(userEmail, user.getEmail());
+                    DatabaseManager.friendRequestAccepted(userEmail, user.getEmail());
+
+                }
+            });
         }
 
+    }
+
+    private RelationshipStatus determineRelationship(AppUser user) {
+        RelationshipStatus relationship = new RelationshipStatus();
+        String uEmail = userEmail.replace(".", "_");
+        if(user.friends != null)
+            relationship.friends = user.friends.contains(uEmail);
+        else
+            relationship.friends = false;
+        if(user.receivedRequests != null)
+            relationship.requested = user.receivedRequests.contains(userEmail.replace(".", "_"));
+        else
+            relationship.requested = false;
+        return relationship;
     }
 
     private class GetImage extends AsyncTask<String, Void, Bitmap> {
@@ -199,5 +257,10 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
                     profilePic.setImageResource(R.drawable.ic_account_circle_black_36dp);
             }
         }
+    }
+
+    private class RelationshipStatus{
+        private boolean friends;
+        private boolean requested;
     }
 }

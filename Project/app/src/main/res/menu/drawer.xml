@@ -12,12 +12,12 @@
         <item
             android:id="@+id/nav_searchFriends"
             android:checked="false"
-            android:title="Friends" />
+            android:title="Search Users" />
 
         <item
-            android:id="@+id/sent_mail"
+            android:id="@+id/nav_friendRequests"
             android:checked="false"
-            android:title="Settings" />
+            android:title="Friend Requests" />
 
         <item android:id="@+id/signout"
             android:checked="false"

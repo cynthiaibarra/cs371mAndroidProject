@@ -1,6 +1,8 @@
 package cai288.cs371m.project.customClasses;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Cynthia on 11/7/2016.
@@ -11,6 +13,9 @@ public class AppUser implements Serializable{
     private String email;
     private String uid;
     private String photo;
+    protected ArrayList<String> friends;
+    protected ArrayList<String> sentRequests;
+    protected ArrayList<String> receivedRequests;
 
     public AppUser(){
     }

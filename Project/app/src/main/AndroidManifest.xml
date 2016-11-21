@@ -17,7 +17,12 @@
         </activity>
         <activity android:name=".activities.SignInActivity" />
         <activity android:name=".activities.SearchActivity" />
-        <activity android:name=".activities.MovieInfoActivity"></activity>
+        <activity android:name=".activities.MovieInfoActivity" />
+        <activity android:name=".activities.FriendRequestsActivity" />
+        <activity
+            android:name=".activities.CommonMoviesActivity"
+            android:label="@string/title_activity_common_movies"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

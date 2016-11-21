@@ -185,6 +185,10 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                         intent.putExtra("searchType", SearchActivity.SEARCH_FRIENDS);
                         startActivity(intent);
                         break;
+                    case R.id.nav_friendRequests:
+                        Intent i = new Intent(MainActivity.this, FriendRequestsActivity.class);
+                        startActivity(i);
+                        break;
                 }
                 drawerLayout.closeDrawers();
                 return true;

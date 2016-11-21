@@ -211,7 +211,7 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
 
         @Override
         public void getUserCallback(AppUser user) {
-            if(userEmail.equals(user.getEmail()) || user == null)
+            if(user == null)
                 Toast.makeText(SearchActivity.this, "Search yielded no results.", Toast.LENGTH_SHORT).show();
             else
                 friendAdapter.addItem(user);
