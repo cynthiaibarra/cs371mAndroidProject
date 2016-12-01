@@ -88,6 +88,7 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
                 movieFetcher = new MovieFetch(this);
                 break;
             case SEARCH_FRIENDS:
+                query.setHint("Search user by email");
                 friendAdapter = new FriendAdapter(FriendAdapter.TYPE_ADD_FRIEND);
                 rv.setAdapter(friendAdapter);
                 break;
@@ -198,8 +199,11 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
                 case SEARCH_FRIENDS:
                     Log.i(TAG, "SEARCH FRIENDS");
                     friendAdapter.clear();
-                    String email = q.replace(".", "_");
-                    DatabaseManager.getUser(email, new addUserToFriendAdapter());
+                    String searchQ = q.replace(".", "_");
+                    if(searchQ.contains("@"))
+                        DatabaseManager.getUser(searchQ, new addUserToFriendAdapter());
+                    else
+                        DatabaseManager.getUserByName(searchQ, new addUserToFriendAdapter());
                     progressBar.setVisibility(View.INVISIBLE);
                     rv.setVisibility(View.VISIBLE);
                     break;

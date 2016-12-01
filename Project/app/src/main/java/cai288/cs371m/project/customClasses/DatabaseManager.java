@@ -11,19 +11,30 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.commons.lang3.text.WordUtils;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import cai288.cs371m.project.R;
 
 /**
  * Created by Cynthia on 11/11/2016.
  */
 
 public class DatabaseManager {
+    public static final int WATCHLIST = 0;
+    public static final int FAVELIST = 1;
     public interface getFriendsListener {
         void friendAddedCallback(String friend);
 
         void friendRemovedCallback(String friend);
+
+    }
+
+    public interface getMoviesListener {
+        void getMoviesList(ArrayList<String> movies);
 
     }
 
@@ -103,6 +114,7 @@ public class DatabaseManager {
             return;
         }
         db.child("user").child(userEmail.replace(".", "_")).child("friends").push().setValue(friendEmail.replace(".","_"));
+        db.child("user").child(friendEmail.replace(".", "_")).child("friends").push().setValue(userEmail.replace(".","_"));
     }
 
 
@@ -242,17 +254,19 @@ public class DatabaseManager {
             }
         });
     }
+    public static void getUserByName(final String name, final getUserListener listener){
+        Query q = db.child("user").orderByChild("name").equalTo(WordUtils.capitalizeFully(name));
+        getAppUser(q, listener);
 
-
+    }
 
 
     public static void getUser(final String userEmail, final getUserListener listener){
-        if (db == null) {
-            Log.d(TAG, "db == null");
-            return;
-        }
-        Log.d(TAG, "db == hereee");
-        Query q = db.child("user").child(userEmail);
+        Query q = db.child("user").child(userEmail.toLowerCase());
+        getAppUser(q, listener);
+    }
+
+    private static void getAppUser(Query q, final getUserListener listener){
         if(q != null){
             q.addListenerForSingleValueEvent(
                     new ValueEventListener() {
@@ -266,7 +280,6 @@ public class DatabaseManager {
                                         (String) userMap.get("photo"), (String) userMap.get("uid"));
                                 Log.d(TAG, "db == friends");
                                 if (userMap.get("friends") != null) {
-                                    Log.d(TAG, "db == friends!!!!!!!!!!!");
                                     HashMap<String, String> friends = (HashMap<String, String>) userMap.get("friends");
                                     user.friends = new ArrayList<>();
                                     for (String key : friends.keySet()) {
@@ -302,6 +315,76 @@ public class DatabaseManager {
                     }
             );
         }
+    }
 
+    public static void getCommonMoviesList(int type, String userEmail,
+                                           String friendsEmail, final getMoviesListener listener){
+        String uEmail = userEmail.replace(".","_");
+        String fEmail = friendsEmail.replace(".", "_");
+        String userList = "", friendList = "";
+        final Query uWatch, fWatch;
+        if (type == R.string.watch_list){
+            userList = uEmail + "_watchList";
+            friendList = fEmail + "_watchList";
+
+        } else {
+            userList = uEmail + "_favoriteList";
+            friendList = fEmail + "_favoriteList";
+
+        }
+        uWatch = db.child("lists").child(userList).orderByValue();
+        fWatch = db.child("lists").child(friendList).orderByValue();
+        Log.i(TAG, userList);
+        Log.i(TAG, friendList);
+        uWatch.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot dataSnapshot) {
+                Log.i(TAG, (String) "uWatch");
+                fWatch.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot fDataSnapshot) {
+                        Log.i(TAG, "uWatch");
+                        for(DataSnapshot d: fDataSnapshot.getChildren()){
+                            Log.i(TAG, (String) d.getValue());
+                        }
+                        HashMap<String, String> data = (HashMap<String, String>) fDataSnapshot.getValue();
+                        HashMap<String, String> fMovies = new HashMap<String, String>();
+                        ArrayList<String> commonMovies = new ArrayList<String>();
+                        if(data != null && fMovies != null){
+                            for(String key: data.keySet()){
+                                fMovies.put(data.get(key), key);
+                            }
+                            for(DataSnapshot movie: dataSnapshot.getChildren()){
+                                Log.i(TAG, (String) movie.getValue());
+                                if(fMovies.containsKey((String) movie.getValue())){
+                                    commonMovies.add((String) movie.getValue());
+                                }
+
+                            }
+
+                        }
+
+
+
+
+
+                        listener.getMoviesList(commonMovies);
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        /*getString(R.string.favorite_list)*/
     }
 }

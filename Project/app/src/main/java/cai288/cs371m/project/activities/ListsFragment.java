@@ -27,6 +27,8 @@ import java.util.Iterator;
 
 import cai288.cs371m.project.R;
 import cai288.cs371m.project.customClasses.DynamicAdapter;
+import cai288.cs371m.project.customClasses.GenericAdapter;
+import cai288.cs371m.project.customClasses.MovieListAdapter;
 import cai288.cs371m.project.customClasses.MovieRecord;
 
 /**
@@ -39,15 +41,16 @@ import cai288.cs371m.project.customClasses.MovieRecord;
  */
 public class ListsFragment extends Fragment {
     private DynamicAdapter adapter;
+    private MovieListAdapter adapter2;
     private String list;
+    private ArrayList<String> movieList;
     private String TAG = "ListsFragment: ";
 
-   // private OnFragmentInteractionListener mListener;
+    // private OnFragmentInteractionListener mListener;
 
     public ListsFragment() {
         // Required empty public constructor
     }
-
 
 
     // TODO: Rename and change types and number of parameters
@@ -59,10 +62,20 @@ public class ListsFragment extends Fragment {
         return fragment;
     }
 
+    public static ListsFragment newInstance(ArrayList<String> movieList) {
+        ListsFragment fragment = new ListsFragment();
+        Bundle args = new Bundle();
+        args.putSerializable("movieList", movieList);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        list = getArguments() != null ? getArguments().getString("list") : "poop";
+        list = getArguments() != null ? getArguments().getString("list") : null;
+        movieList = getArguments() != null ? (ArrayList<String>) getArguments().getSerializable("movieList") : null;
+
 
 
     }
@@ -72,10 +85,16 @@ public class ListsFragment extends Fragment {
         LinearLayoutManager rv_layout_mgr = new LinearLayoutManager(getContext());
         rv.setLayoutManager(rv_layout_mgr);
         rv.setItemAnimator(new DefaultItemAnimator());
-        adapter = new DynamicAdapter(getContext());
-        rv.setAdapter(adapter);
+        if(list != null){
+            adapter = new DynamicAdapter(getContext());
+            rv.setAdapter(adapter);
+        }
+        else{
+            Log.i(TAG, "THIS IS GETTING SET UP LIKE I WANT IT");
+            adapter2 = new MovieListAdapter();
+            rv.setAdapter(adapter2);
+        }
     }
-
 
 
     @Override
@@ -85,7 +104,8 @@ public class ListsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_lists, container, false);
         Log.i(TAG, "==============================");
         setUpRecyclerView(v);
-        if(list != null) {
+
+        if (list != null) {
             Log.i(TAG, list);
             DatabaseReference firebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
             Query watch = firebaseDatabaseReference.child("lists").child(list).orderByValue();
@@ -130,47 +150,16 @@ public class ListsFragment extends Fragment {
                 }
             });
         }
+        if(movieList != null){
+            Log.i(TAG, movieList.toString());
+            adapter2.setItems(movieList);
+            adapter2.notifyDataSetChanged();
+        }
 
 
         return v;
     }
+}
 
 //    // TODO: Rename method, update argument and hook method into UI event
-//    public void onButtonPressed(Uri uri) {
-//        if (mListener != null) {
-//            mListener.onFragmentInteraction(uri);
-//        }
-//    }
 
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//        if (context instanceof OnFragmentInteractionListener) {
-//            mListener = (OnFragmentInteractionListener) context;
-//        } else {
-//            throw new RuntimeException(context.toString()
-//                    + " must implement OnFragmentInteractionListener");
-//        }
-//    }
-//
-//    @Override
-//    public void onDetach() {
-//        super.onDetach();
-//        mListener = null;
-//    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-//    public interface OnFragmentInteractionListener {
-//        // TODO: Update argument type and name
-//        void onFragmentInteraction(Uri uri);
-//    }
-}

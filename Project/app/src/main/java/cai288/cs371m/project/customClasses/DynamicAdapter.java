@@ -101,6 +101,7 @@ public class DynamicAdapter extends RecyclerView.Adapter<DynamicAdapter.DynamicV
 
 
     }
+
     public boolean contains(String imdbID){
         return movieRecords.containsKey(imdbID);
     }

@@ -26,7 +26,7 @@ public abstract class GenericAdapter<T> extends RecyclerView.Adapter<GenericAdap
 
     public void setItems(ArrayList<T> items){
         this.list.clear();
-        this.list.addAll(items);
+        this.list = items;
         notifyDataSetChanged();
     }
 

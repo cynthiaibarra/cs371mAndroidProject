@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import cai288.cs371m.project.R;
+import cai288.cs371m.project.activities.CommonMoviesActivity;
 import cai288.cs371m.project.activities.MainActivity;
 import cai288.cs371m.project.activities.MovieInfoActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -115,6 +116,13 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
 
         @Override
         public void onClick(View v) {
+            Intent intent = new Intent(v.getContext(), CommonMoviesActivity.class);
+            intent.putExtra("friendEmail", email.getText().toString());
+            intent.putExtra("userEmail", userEmail);
+            v.getContext().startActivity(intent);
+
+
+
         }
     }
 
@@ -153,7 +161,7 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
         new GetImage(h.profilePic).execute(user.getPhoto());
         Log.i("determineRelationship", "" + relationship.friends);
 
-        if(type == TYPE_ADD_FRIEND && !relationship.friends && !relationship.requested){
+        if(type == TYPE_ADD_FRIEND && !relationship.friends && !relationship.requested && !relationship.requestReceived){
             if(friendsList.indexOf(user.getEmail()) < 0){
                 h.friendRequestSent.setVisibility(View.GONE);
                 h.addFriendBtn.setVisibility(View.VISIBLE);
@@ -168,6 +176,10 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
                 });
             }
 
+        }else if (type == TYPE_ADD_FRIEND && relationship.requestReceived){
+            h.addFriendBtn.setVisibility(View.GONE);
+            h.friendRequestSent.setVisibility(View.VISIBLE);
+            h.friendRequestSent.setText("Accept Friend Request");
         }else if(type == TYPE_ADD_FRIEND && relationship.requested){
             h.friendRequestSent.setVisibility(View.VISIBLE);
             h.addFriendBtn.setVisibility(View.GONE);
@@ -207,6 +219,14 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
             relationship.requested = user.receivedRequests.contains(userEmail.replace(".", "_"));
         else
             relationship.requested = false;
+        if (user.sentRequests != null)
+            relationship.requestReceived = user.sentRequests.contains(userEmail.replace(".", "_"));
+        else
+            relationship.requestReceived = false;
+
+        Log.i("<3<3<3", user.sentRequests.toString());
+        Log.i("<3<3<3", "" + relationship.requestReceived);
+
         return relationship;
     }
 
@@ -262,5 +282,6 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
     private class RelationshipStatus{
         private boolean friends;
         private boolean requested;
+        private boolean requestReceived;
     }
 }
