@@ -151,15 +151,12 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
     @Override
     public void onBindViewHolder(GenericAdapter.RecyclerViewHolder holder, int position) {
         final AppUser user = getItem(position);
-        if(user.friends != null){
-            Log.i("meep", user.friends.toString());
-        }
+
         final FriendViewHolder h = (FriendViewHolder) holder;
         RelationshipStatus relationship = determineRelationship(user);
         h.name.setText(user.getName());
         h.email.setText(user.getEmail());
         new GetImage(h.profilePic).execute(user.getPhoto());
-        Log.i("determineRelationship", "" + relationship.friends);
 
         if(type == TYPE_ADD_FRIEND && !relationship.friends && !relationship.requested && !relationship.requestReceived){
             if(friendsList.indexOf(user.getEmail()) < 0){
@@ -224,9 +221,6 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
         else
             relationship.requestReceived = false;
 
-        Log.i("<3<3<3", user.sentRequests.toString());
-        Log.i("<3<3<3", "" + relationship.requestReceived);
-
         return relationship;
     }
 
@@ -269,7 +263,6 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
             return image;
         }
         protected void onPostExecute(Bitmap b) {
-            Log.i("here", "++++++++");
             if(profilePic != null){
                 if(b != null)
                     profilePic.setImageBitmap(b);

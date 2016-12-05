@@ -1,47 +1,21 @@
 package cai288.cs371m.project.activities;
 
-import android.provider.ContactsContract;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
-import android.widget.TextView;
-import android.widget.Toast;
-
 import java.util.ArrayList;
-
 import cai288.cs371m.project.R;
 import cai288.cs371m.project.ViewPagerAdapter;
 import cai288.cs371m.project.customClasses.DatabaseManager;
+import cai288.cs371m.project.customClasses.MovieRecord;
 
 public class CommonMoviesActivity extends AppCompatActivity {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
-
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
     private ViewPagerAdapter adapter;
     private TabLayout tabLayout;
@@ -63,17 +37,6 @@ public class CommonMoviesActivity extends AppCompatActivity {
         mViewPager = (ViewPager) findViewById(R.id.container);
         initViewPagerAdapter(userEmail, friendEmail, tabLayout.getSelectedTabPosition());
 
-
-
-        // Set up the ViewPager with the sections adapter.
-
-        ;
-
-
-
-
-
-
     }
 
     private void initViewPagerAdapter(String userEmail, String friendEmail, int position) {
@@ -81,9 +44,8 @@ public class CommonMoviesActivity extends AppCompatActivity {
 
         DatabaseManager.getCommonMoviesList(R.string.watch_list, userEmail, friendEmail, new DatabaseManager.getMoviesListener() {
             @Override
-            public void getMoviesList(ArrayList<String> movies) {
-                Toast.makeText(CommonMoviesActivity.this, movies.toString(), Toast.LENGTH_SHORT).show();
-                adapter.addFragment(ListsFragment.newInstance(movies), "WATCHLIST");
+            public void getMoviesList(ArrayList<MovieRecord> m) {
+                adapter.addFragment(ListsFragment.newInstance(m), "WATCHLIST");
                 mViewPager.setAdapter(adapter);
                 tabLayout.setupWithViewPager(mViewPager);
             }
@@ -91,8 +53,8 @@ public class CommonMoviesActivity extends AppCompatActivity {
 
         DatabaseManager.getCommonMoviesList(R.string.favorite_list, userEmail, friendEmail, new DatabaseManager.getMoviesListener() {
             @Override
-            public void getMoviesList(ArrayList<String> movies) {
-                Toast.makeText(CommonMoviesActivity.this, movies.toString(), Toast.LENGTH_SHORT).show();
+            public void getMoviesList(ArrayList<MovieRecord> movies) {
+
                 adapter.addFragment(ListsFragment.newInstance(movies), "FAVELIST");
                 mViewPager.setAdapter(adapter);
                 tabLayout.setupWithViewPager(mViewPager);
@@ -117,7 +79,6 @@ public class CommonMoviesActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.clear) {
             finish();
             return true;
@@ -125,6 +86,8 @@ public class CommonMoviesActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+
 
 
 

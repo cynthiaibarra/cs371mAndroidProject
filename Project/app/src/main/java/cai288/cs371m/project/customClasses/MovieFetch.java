@@ -3,7 +3,9 @@ package cai288.cs371m.project.customClasses;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.telecom.Call;
 import android.util.Log;
+import android.widget.ImageView;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -28,16 +30,21 @@ public class MovieFetch {
         void fetchMoviesComplete(JSONObject result);
         void fetchImageComplete(Bitmap image);
     }
-    public static final int DISCOVER = 1;
+
     public static final int SEARCH = 2;
     public static final int IMAGE = 3;
     private static final String OMDBAPI_SEARCH = "http://www.omdbapi.com/?type=movie&s=";
     private static final String OMDBAPI_POSTER = "http://img.omdbapi.com/?apikey=73bf5f47&w=200&i=";
 
     protected Callback callback = null;
+    protected ImageView iv;
 
     public MovieFetch(Callback callback){
         this.callback = callback;
+    }
+
+    public MovieFetch(ImageView iv){
+        this.iv = iv;
     }
 
     public void fetch(int call, String query){
@@ -49,7 +56,10 @@ public class MovieFetch {
                 new GetSearch().execute(query);
                 break;
             case IMAGE:
-                new GetImage().execute(query);
+                if(iv != null)
+                    new GetImage(iv).execute(query);
+                else
+                    new GetImage().execute(query);
             default:
                 break;
         }
@@ -135,6 +145,14 @@ public class MovieFetch {
 //    }
 
     private class GetImage extends AsyncTask<String, Void, Bitmap> {
+        ImageView iv;
+        public GetImage(ImageView iv){
+            this.iv = iv;
+        }
+
+        public GetImage(){
+        }
+
         protected Bitmap doInBackground(String... s) {
             HttpURLConnection urlConnection = null;
             InputStream inputStream = null;
@@ -172,7 +190,11 @@ public class MovieFetch {
 
 
         protected void onPostExecute(Bitmap b) {
-            callback.fetchImageComplete(b);
+
+            if(callback != null)
+                callback.fetchImageComplete(b);
+            else
+                iv.setImageBitmap(b);
         }
     }
 }

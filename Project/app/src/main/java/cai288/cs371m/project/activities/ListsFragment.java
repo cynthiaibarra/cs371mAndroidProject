@@ -1,11 +1,9 @@
 package cai288.cs371m.project.activities;
 
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,16 +17,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 
 import cai288.cs371m.project.R;
 import cai288.cs371m.project.customClasses.DynamicAdapter;
-import cai288.cs371m.project.customClasses.GenericAdapter;
-import cai288.cs371m.project.customClasses.MovieListAdapter;
 import cai288.cs371m.project.customClasses.MovieRecord;
 
 /**
@@ -41,9 +34,8 @@ import cai288.cs371m.project.customClasses.MovieRecord;
  */
 public class ListsFragment extends Fragment {
     private DynamicAdapter adapter;
-    private MovieListAdapter adapter2;
     private String list;
-    private ArrayList<String> movieList;
+    private ArrayList<MovieRecord> mList;
     private String TAG = "ListsFragment: ";
 
     // private OnFragmentInteractionListener mListener;
@@ -62,10 +54,10 @@ public class ListsFragment extends Fragment {
         return fragment;
     }
 
-    public static ListsFragment newInstance(ArrayList<String> movieList) {
+    public static ListsFragment newInstance(ArrayList<MovieRecord> movieList) {
         ListsFragment fragment = new ListsFragment();
         Bundle args = new Bundle();
-        args.putSerializable("movieList", movieList);
+        args.putSerializable("mList", movieList);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,26 +66,18 @@ public class ListsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         list = getArguments() != null ? getArguments().getString("list") : null;
-        movieList = getArguments() != null ? (ArrayList<String>) getArguments().getSerializable("movieList") : null;
-
-
-
+        mList = getArguments() != null ? (ArrayList<MovieRecord>) getArguments().getSerializable("mList") : null;
     }
 
     private void setUpRecyclerView(View v) {
         RecyclerView rv = (RecyclerView) v.findViewById(R.id.fragmentRecyclerView);
-        LinearLayoutManager rv_layout_mgr = new LinearLayoutManager(getContext());
+        LinearLayoutManager rv_layout_mgr = new GridLayoutManager(getContext(), 3);
         rv.setLayoutManager(rv_layout_mgr);
         rv.setItemAnimator(new DefaultItemAnimator());
-        if(list != null){
-            adapter = new DynamicAdapter(getContext());
-            rv.setAdapter(adapter);
-        }
-        else{
-            Log.i(TAG, "THIS IS GETTING SET UP LIKE I WANT IT");
-            adapter2 = new MovieListAdapter();
-            rv.setAdapter(adapter2);
-        }
+
+        adapter = new DynamicAdapter(true);
+        rv.setAdapter(adapter);
+
     }
 
 
@@ -102,7 +86,6 @@ public class ListsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_lists, container, false);
-        Log.i(TAG, "==============================");
         setUpRecyclerView(v);
 
         if (list != null) {
@@ -115,10 +98,9 @@ public class ListsFragment extends Fragment {
                 @Override
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Log.d(TAG, "onChildAdded: " + dataSnapshot.getKey() + ":" + dataSnapshot.getValue());
-
-                    if (!adapter.contains(dataSnapshot.getKey())) {
-                        adapter.addItem(new MovieRecord(dataSnapshot.getKey(), dataSnapshot.getValue().toString()));
-                        adapter.notifyDataSetChanged();
+                    MovieRecord m = new MovieRecord(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
+                    if (!adapter.contains(m)) {
+                        adapter.addItem(m);
                     }
 
                 }
@@ -132,16 +114,14 @@ public class ListsFragment extends Fragment {
                 @Override
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
                     Log.d(TAG, "onChildRemoved: " + dataSnapshot.getKey() + ":" + dataSnapshot.getValue());
-                    adapter.removeItem(dataSnapshot.getKey());
+                    MovieRecord m = new MovieRecord(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
+                    adapter.removeItem(m);
 
                 }
 
                 @Override
                 public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
                     Log.d(TAG, "onChildMoved: : " + dataSnapshot.getKey() + ":" + dataSnapshot.getValue());
-
-
                 }
 
                 @Override
@@ -150,10 +130,8 @@ public class ListsFragment extends Fragment {
                 }
             });
         }
-        if(movieList != null){
-            Log.i(TAG, movieList.toString());
-            adapter2.setItems(movieList);
-            adapter2.notifyDataSetChanged();
+        if(mList != null){
+            adapter.setItems(mList);
         }
 
 

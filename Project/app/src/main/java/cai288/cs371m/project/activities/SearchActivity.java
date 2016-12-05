@@ -24,15 +24,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
-
 import cai288.cs371m.project.customClasses.AppUser;
 import cai288.cs371m.project.customClasses.DatabaseManager;
 import cai288.cs371m.project.customClasses.DynamicAdapter;
@@ -83,7 +76,7 @@ public class SearchActivity extends AppCompatActivity implements MovieFetch.Call
         query = (EditText) findViewById(R.id.searchQuery);
         switch (searchType){
             case SEARCH_MOVIES:
-                adapter = new DynamicAdapter(this);
+                adapter = new DynamicAdapter(false);
                 rv.setAdapter(adapter);
                 movieFetcher = new MovieFetch(this);
                 break;

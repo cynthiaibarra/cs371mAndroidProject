@@ -23,6 +23,9 @@ import java.util.HashMap;
  */
 
 public class MovieRecord implements Serializable{
+    public interface MovieInformationCallback{
+        public void callback();
+    }
     private static final String OMDBAPI_BYID = "http://www.omdbapi.com/?i=";
     private String title;
     private String year;
@@ -37,7 +40,9 @@ public class MovieRecord implements Serializable{
     private String actors;
     private String metascore;
     private String imdbRating;
-    private boolean ready;
+    private Bitmap poster;
+    public String showID;
+    public boolean ready;
     private final static String TAG = "MovieRecord: ";
 
     public MovieRecord(String title, String year, String imdbID){
@@ -45,17 +50,17 @@ public class MovieRecord implements Serializable{
         this.year = year;
         this.imdbID = imdbID;
         ready = false;
-        new GetInfo().execute(imdbID);
+
     }
 
     public MovieRecord(String imdbID, String title){
         this.imdbID = imdbID;
         this.title = title;
         ready = false;
-        new GetInfo().execute(imdbID);
     }
 
     private void setInformation(JSONObject result) throws JSONException {
+        Log.i(TAG, "setting Information");
         if(year == null)
             year = result.getString("Year");
         rating = result.getString("Rated");
@@ -74,7 +79,16 @@ public class MovieRecord implements Serializable{
 
     }
 
+    public void getInformation(MovieInformationCallback callback){
+        new GetInfo(callback).execute(imdbID);
+
+    }
+
     protected class GetInfo extends AsyncTask<String, Void, JSONObject> {
+        private MovieInformationCallback callback;
+        public GetInfo(MovieInformationCallback callback){
+            this.callback = callback;
+        }
         protected JSONObject doInBackground(String... s) {
             String id = s[0];
             String response = "";
@@ -130,6 +144,7 @@ public class MovieRecord implements Serializable{
         protected void onPostExecute(JSONObject result) {
             try {
                 setInformation(result);
+                callback.callback();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -194,6 +209,14 @@ public class MovieRecord implements Serializable{
 
     public String toString(){
         return (title + "(" + year + ")");
+    }
+
+    public void setPoster(Bitmap poster){
+        this.poster = poster;
+    }
+
+    public Bitmap getPoster(){
+        return this.poster;
     }
 
     public boolean isReady(){

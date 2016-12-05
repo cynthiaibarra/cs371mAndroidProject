@@ -34,7 +34,7 @@ public class DatabaseManager {
     }
 
     public interface getMoviesListener {
-        void getMoviesList(ArrayList<String> movies);
+        void getMoviesList(ArrayList<MovieRecord> movies);
 
     }
 
@@ -349,7 +349,7 @@ public class DatabaseManager {
                         }
                         HashMap<String, String> data = (HashMap<String, String>) fDataSnapshot.getValue();
                         HashMap<String, String> fMovies = new HashMap<String, String>();
-                        ArrayList<String> commonMovies = new ArrayList<String>();
+                        ArrayList<MovieRecord> commonMovies = new ArrayList<>();
                         if(data != null && fMovies != null){
                             for(String key: data.keySet()){
                                 fMovies.put(data.get(key), key);
@@ -357,7 +357,7 @@ public class DatabaseManager {
                             for(DataSnapshot movie: dataSnapshot.getChildren()){
                                 Log.i(TAG, (String) movie.getValue());
                                 if(fMovies.containsKey((String) movie.getValue())){
-                                    commonMovies.add((String) movie.getValue());
+                                    commonMovies.add(new MovieRecord((String) movie.getKey(), (String) movie.getValue()));
                                 }
 
                             }
