@@ -20,7 +20,6 @@
                 android:layout_height="match_parent"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed">
                 <include layout="@layout/toolbar" android:id="@+id/toolbar" />
-
                 <include layout="@layout/tabs" android:id="@+id/tabLayout"/>
             </android.support.design.widget.CollapsingToolbarLayout>
         </android.support.design.widget.AppBarLayout>

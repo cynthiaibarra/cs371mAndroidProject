@@ -1,6 +1,7 @@
 package cai288.cs371m.project.activities;
 
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -87,6 +90,17 @@ public class ListsFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_lists, container, false);
         setUpRecyclerView(v);
+        final LinearLayout userguide = (LinearLayout) v.findViewById(R.id.userguide);
+        ImageView icon = (ImageView) v.findViewById(R.id.userguide_icon);
+        if(list != null && list.contains("watch")){
+            icon.setImageResource(R.drawable.bookmark_plus_unhighlighted);
+        }
+        else if(list != null)
+            icon.setImageResource(R.drawable.heart_outline);
+        if(userguide != null && mList == null && adapter.getItemCount() == 0){
+              userguide.setVisibility(View.VISIBLE);
+
+        }
 
         if (list != null) {
             Log.i(TAG, list);
@@ -99,8 +113,12 @@ public class ListsFragment extends Fragment {
                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                     Log.d(TAG, "onChildAdded: " + dataSnapshot.getKey() + ":" + dataSnapshot.getValue());
                     MovieRecord m = new MovieRecord(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
-                    if (!adapter.contains(m)) {
+                    if (!adapter.contains(m.getTitle())) {
                         adapter.addItem(m);
+                    }
+                    if(userguide != null && mList == null && adapter.getItemCount() > 0){
+                        userguide.setVisibility(View.GONE);
+
                     }
 
                 }
@@ -115,7 +133,11 @@ public class ListsFragment extends Fragment {
                 public void onChildRemoved(DataSnapshot dataSnapshot) {
                     Log.d(TAG, "onChildRemoved: " + dataSnapshot.getKey() + ":" + dataSnapshot.getValue());
                     MovieRecord m = new MovieRecord(dataSnapshot.getKey(), dataSnapshot.getValue().toString());
-                    adapter.removeItem(m);
+                    adapter.removeItem(m.getTitle());
+                    if(userguide != null && mList == null && adapter.getItemCount() == 0){
+                        userguide.setVisibility(View.VISIBLE);
+
+                    }
 
                 }
 

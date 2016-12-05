@@ -20,7 +20,7 @@
         android:orientation="vertical">
 
         <android.support.design.widget.AppBarLayout
-            android:layout_height="70dp"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent">
             <include layout="@layout/search_toolbar" android:id="@+id/searchToolbar"/>
 

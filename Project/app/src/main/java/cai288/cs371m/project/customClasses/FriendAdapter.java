@@ -119,6 +119,7 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
             Intent intent = new Intent(v.getContext(), CommonMoviesActivity.class);
             intent.putExtra("friendEmail", email.getText().toString());
             intent.putExtra("userEmail", userEmail);
+            intent.putExtra("friendName", name.getText().toString());
             v.getContext().startActivity(intent);
 
 

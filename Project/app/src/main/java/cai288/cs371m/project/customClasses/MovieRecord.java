@@ -59,6 +59,10 @@ public class MovieRecord implements Serializable{
         ready = false;
     }
 
+    public boolean equals(MovieRecord other){
+        return this.title.equals(other.title);
+    }
+
     private void setInformation(JSONObject result) throws JSONException {
         Log.i(TAG, "setting Information");
         if(year == null)

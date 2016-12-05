@@ -140,6 +140,20 @@ public class DynamicAdapter extends GenericAdapter<MovieRecord> implements Movie
 
 
         }
+
+
+    }
+
+    public void removeItem(String n){
+        int i = 0;
+        for(MovieRecord m: list){
+            if(m.getTitle().equals(n)){
+                list.remove(i);
+                notifyItemRemoved(i);
+                break;
+            }
+            i++;
+        }
     }
 
     public boolean contains(String title){
