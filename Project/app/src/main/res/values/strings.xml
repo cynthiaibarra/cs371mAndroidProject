@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name"></string>
+    <string name="app_name">Let\'s Watch</string>
     <string name="open">Drawer open</string>
     <string name="close">Drawer close</string>
     <string name="welcome_msg">Welcome!</string>
