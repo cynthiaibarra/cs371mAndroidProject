@@ -1,11 +1,13 @@
 package cai288.cs371m.project.customClasses;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.provider.ContactsContract;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -150,7 +152,7 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
     }
 
     @Override
-    public void onBindViewHolder(GenericAdapter.RecyclerViewHolder holder, int position) {
+    public void onBindViewHolder(GenericAdapter.RecyclerViewHolder holder, final int position) {
         final AppUser user = getItem(position);
 
         final FriendViewHolder h = (FriendViewHolder) holder;
@@ -200,6 +202,36 @@ public class FriendAdapter extends GenericAdapter<AppUser> implements DatabaseMa
                     DatabaseManager.addFriend(userEmail, user.getEmail());
                     DatabaseManager.friendRequestAccepted(userEmail, user.getEmail());
 
+                }
+            });
+        }
+
+        if(type == TYPE_FRIEND){
+            h.container.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Log.i("FriendAdapter: ", "delete friend?");
+                    AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                    builder.setMessage("Are you sure you want to remove " + user.getName() + " as a friend?")
+                            .setTitle("Delete Friend");
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            DatabaseManager.deleteFriend(userEmail, user.getEmail());
+                            list.remove(position);
+                            notifyItemRemoved(position);
+                            Log.i("FriendAdapter: ", "delete friend");
+                        }
+                    });
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.i("FriendAdapter: ", "cancel");
+                        }
+                    });
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                    return true;
                 }
             });
         }

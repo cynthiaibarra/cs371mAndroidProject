@@ -78,7 +78,46 @@ public class DatabaseManager {
         });
 
     }
+    public static void deleteFriend(final String userEmail, final String friendEmail){
+        db.child("user").child(userEmail.replace(".", "_")).child("friends").orderByValue()
+                .equalTo(friendEmail.replace(".","_"))
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.hasChildren()){
+                            for(DataSnapshot child: dataSnapshot.getChildren()){
+                                Query q = db.child("user").child(userEmail.replace(".", "_")).child("friends")
+                                        .child(child.getKey());
+                                q.getRef().setValue(null);
+                            }
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+        db.child("user").child(friendEmail.replace(".", "_")).child("friends").orderByValue()
+                .equalTo(userEmail.replace(".","_"))
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.hasChildren()) {
+                            for (DataSnapshot child : dataSnapshot.getChildren()) {
+                                Query l = db.child("user").child(friendEmail.replace(".", "_")).child("friends")
+                                        .child(child.getKey());
+                                l.getRef().setValue(null);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
     public static void friendRequestAccepted(final String userEmail, final String friendEmail) {
         String uEmail = userEmail.replace(".", "_");
         final String fEmail = friendEmail.replace(".", "_");
